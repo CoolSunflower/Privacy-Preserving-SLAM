@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-    <img src="./media/BTP2ArchUpdated.png" alt="system_architecture" width="100%">
+    <img src="./media/BTP2ArchUpdateReduceSize.jpeg" alt="system_architecture" width="100%">
 </p>
 
 <p align="center">
