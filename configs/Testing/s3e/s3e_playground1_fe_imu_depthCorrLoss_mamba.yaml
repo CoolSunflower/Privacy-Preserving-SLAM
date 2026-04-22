@@ -1,0 +1,97 @@
+inherit_from: ./configs/wildgs_slam.yaml
+scene: playground_1
+stride: 1
+fast_mode: False
+max_frames: -1
+
+data:
+  input_folder: ./datasets/S3E/playground_1
+  output: ./output/s3e_playground_1_fe_depth_corr_mamba
+  has_depth: False
+
+eval_manual: True
+dataset: 's3e_rgbd_imu'
+
+tracking:
+  buffer: 1500
+
+# IMU and camera configuration tuned for the simulated VIODE dataset
+imu:
+  enabled: True                               # Enable IMU propagation
+  use_in_frontend: True                       # Use IMU for pose initialization in frontend
+  use_in_ba: False                             # Use IMU as soft constraint in BA
+  topic: "/imu"                               # IMU topic in dataset
+  rate: 100.0                                 # IMU sampling rate (Hz)
+  warmup: 20                                  # Frames to wait before using IMU priors (separate from tracking warmup)
+  
+  # Use direct IMU orientation (S3E provides high-quality orientation from sensor fusion)
+  use_orientation: True                       # Use IMU orientation quaternion instead of gyro integration
+  
+  # Gravity vector in world frame (will be refined from data)
+  gravity: [0.0, 0.0, -9.81]                  # m/s² [x, y, z] 
+  
+  # Measurement noise (discrete-time, per-sample uncertainty)
+  sigma_acc: 1.0919628856399554e-02           # NoiseAcc: accelerometer std (m/s²)
+  sigma_gyr: 1.0451440924866223e-02           # NoiseGyro: gyroscope std (rad/s)
+  
+  # Random walk noise (continuous-time, bias drift rate)
+  sigma_acc_walk: 2.1851827629113259e-04      # AccWalk: accel bias drift (m/s²/√s)
+  sigma_gyr_walk: 8.1770009351257180e-05      # GyroWalk: gyro bias drift (rad/s/√s)
+  
+  # Initial bias estimates (will be estimated if bias estimation enabled)
+  bias_acc: [0.0, 0.0, 0.0]                   # Initial accelerometer bias (m/s²)
+  bias_gyr: [0.0, 0.0, 0.0]                   # Initial gyroscope bias (rad/s)
+  
+  # BA soft constraint weights
+  prior_weight_T: 0.5                         # Translation prior weight (λ_T) - Start conservative
+  prior_weight_R: 0.5                         # Rotation prior weight (λ_R) - Start conservative
+  
+  # Buffer configuration
+  max_imu_samples: 30000                      # Buffer capacity (~5 min at 100Hz)
+  max_keyframes: 1500                         # Max keyframes with IMU data
+  
+  # Advanced features (not yet implemented in Stage 3)
+  estimate_bias: False                        # Enable online bias estimation (TODO: Stage 4)
+  propagate_covariance: False                 # Enable covariance propagation (TODO: Stage 4)
+
+cam:
+  H: 1024
+  W: 1224
+  H_out: 360
+  W_out: 480
+  fx: 1172.771733138536
+  fy: 1172.364005984343
+  cx: 617.941545715258
+  cy: 507.672727295385
+  H_edge: 0
+  W_edge: 0
+  png_depth_scale: 5000  # Default depth scale for PNG depth maps (if available)
+
+mapping:
+  Training:
+    alpha: 0.8 # Increase this value to make rendering loss weighs more on rgb rather than depth
+    use_pearson_depth: True # Enable Pearson correlation loss for monocular depth
+    pearson_weight: 0.01 # Weight for Pearson depth loss (scale-invariant)
+  uncertainty_params:
+    uncer_depth_mult: 0.1
+
+    # Correlation penalty loss - discourage high uncertainty for far-away objects
+    correlation_penalty:
+      enabled: True                 # Enable/disable correlation penalty loss
+      correlation_threshold: 0.3    # Only apply penalty if Pearson correlation > this value
+      depth_percentile: 75.0        # Percentile of depth to consider as "far" (top 25%)
+      min_depth_threshold: 3.0      # Minimum absolute depth (meters) to be considered "far"
+      penalty_strength: 1.0         # Multiplier for the penalty loss
+      opacity_threshold: 0.5        # Only consider pixels with opacity > this value
+
+  online_plotting: True
+
+loop_closure:
+  use_mamba_descriptors: True                # Enable descriptor-based loop closure
+  mamba_model: 'nvidia/MambaVision-T-1K'     # Fastest variant for real-time performance
+  descriptor_dim: 640                        # Do not change (MambaVision-T output)
+  topk: 20                                   # Top candidates from FAISS
+  descriptor_threshold: 0.85                 # Cosine similarity threshold (0.85 = conservative)
+  min_temporal_distance: 30                  # Skip recent frames (avoid local matches)
+  geometric_threshold: 25.0                  # Photometric verification (matches backend.loop_thresh)
+  faiss_device: 'cuda:0'                     # GPU for FAISS index

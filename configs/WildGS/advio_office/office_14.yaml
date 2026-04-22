@@ -1,0 +1,9 @@
+# ADVIO Sequence 14 - Office environment 02
+# Indoor, stairs + elevator, low people density
+
+inherit_from: ./configs/WildGS/advio_office/wildgs_advio_base.yaml
+scene: advio-14
+
+data:
+  input_folder: ./datasets/ADVIO/advio-14
+  output: ./output/WildGS/advio/advio-14

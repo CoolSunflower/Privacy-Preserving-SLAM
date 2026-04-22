@@ -1,0 +1,9 @@
+# ADVIO Sequence 16 - Office environment 04
+# Indoor, stairs, no people
+
+inherit_from: ./configs/WildGS/advio_office/wildgs_advio_base.yaml
+scene: advio-16
+
+data:
+  input_folder: ./datasets/ADVIO/advio-16
+  output: ./output/WildGS/advio/advio-16

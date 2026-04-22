@@ -1,0 +1,9 @@
+# ADVIO Sequence 15 - Office environment 03
+# Indoor, no people
+
+inherit_from: ./configs/WildGS/advio_office/wildgs_advio_base.yaml
+scene: advio-15
+
+data:
+  input_folder: ./datasets/ADVIO/advio-15
+  output: ./output/WildGS/advio/advio-15

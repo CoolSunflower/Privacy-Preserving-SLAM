@@ -1,0 +1,42 @@
+# ADVIO Base Configuration for MainSLAM
+# Based on VIODE base config, adapted for ADVIO iPhone data
+# Sequences 13-17 use iphone-03.yaml calibration
+
+inherit_from: ./configs/wildgs_slam.yaml
+
+stride: 25
+fast_mode: False
+max_frames: -1
+
+eval_manual: True
+dataset: 'advio'
+
+data:
+  output: ./output/WildGS/advio
+  has_depth: False
+
+tracking:
+  buffer: 2000
+
+# ADVIO iPhone camera (sequences 13-17) - iphone-03.yaml calibration
+# Note: Video is portrait mode (720x1280), but stored as landscape
+cam:
+  H: 1280              # Image height (portrait)
+  W: 720               # Image width (portrait)
+  H_out: 424           # Output height after resize
+  W_out: 240           # Output width after resize
+  fx: 1082.4           # Focal length X
+  fy: 1084.4           # Focal length Y
+  cx: 364.6778         # Principal point X
+  cy: 643.3080         # Principal point Y
+  H_edge: 0
+  W_edge: 0
+  png_depth_scale: 5000
+  # Radial-tangential distortion coefficients
+  distortion: [0.0366, 0.0803, 0.000783, -0.000215]
+
+mapping:
+  Training:
+    alpha: 0.8
+
+  online_plotting: True

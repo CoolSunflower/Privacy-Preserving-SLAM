@@ -1,0 +1,68 @@
+# Privacy-Preserving Gaussian SLAM - Hybrid Configuration
+# Full pipeline: YOLOv8 during SLAM + Grounding DINO + SAM post-processing + filling
+
+privacy:
+  enable: true
+  mode: "hybrid"  # "simultaneous", "postprocess", "hybrid", "input_blur"
+
+  # With 24GB GPU, can use Grounding DINO during simultaneous mode
+  simultaneous_detector: "yolo"  # "yolo" or "grounding_dino"
+
+  # YOLOv8 configuration (for simultaneous mode)
+  yolo_config:
+    model: "yolov8n-seg"  # yolov8n-seg (fastest) or yolov8s-seg (more accurate)
+    confidence_threshold: 0.5
+    iou_threshold: 0.45
+    dilation_kernel: 7
+    privacy_classes:
+      - "person"
+
+  # Grounding DINO + SAM configuration (for post-processing)
+  grounding_sam_config:
+    # Text prompts - fully customizable categories
+    text_prompts:
+      - "human face"
+      - "person"
+      - "computer screen"
+      - "monitor display"
+      - "document"
+      - "paper with text"
+      - "license plate"
+      - "credit card"
+      - "id card"
+      - "whiteboard with writing"
+    box_threshold: 0.3
+    text_threshold: 0.25
+    dilation_kernel: 11
+    sam_model: "vit_h"  # vit_h (best), vit_l (fast), vit_b (fastest)
+    # Model paths (adjust to your installation)
+    grounding_dino_config: "GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"
+    grounding_dino_weights: "weights/groundingdino_swint_ogc.pth"
+    sam_checkpoint: "weights/sam_vit_h_4b8939.pth"
+
+  # Excision parameters
+  uncertainty_beta: 100.0  # High uncertainty value for private regions
+  excision_threshold: 0.5  # Mask threshold for excision
+  multi_view_threshold: 2  # Gaussians must appear private in N views
+  depth_aware: true        # Use depth filtering for excision
+  depth_buffer: 0.5        # Depth tolerance in meters
+
+  # Enable/disable components
+  enable_excision: true    # Whether to prune private Gaussians
+  enable_filling: true     # Whether to fill excised regions
+
+  # Filling parameters
+  fill_opacity: 0.15       # Opacity for filler Gaussians (low = transparent)
+  fill_color: [0.5, 0.5, 0.5]  # Neutral gray RGB [0,1]
+  fill_density: 0.02       # Points per pixel in fill region
+  fill_point_size: 0.05    # Gaussian scale for fillers
+  fill_keyframe_id: -1     # Special keyframe ID for filler Gaussians
+  inpaint_radius: 5        # OpenCV inpaint radius
+
+  # Evaluation settings
+  evaluation:
+    methods: ["A", "B", "C", "D", "E", "F"]  # Run all for comparison
+    compute_reidentification: true
+    compute_ssim_sensitive: true
+    ssim_target: "black"  # "black" or "neutral_gray"
+    save_comparison_figures: true

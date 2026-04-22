@@ -1,0 +1,33 @@
+# Privacy-Preserving Gaussian SLAM - Default Configuration
+# Post-processing only mode (simplest, no runtime overhead)
+
+privacy:
+  enable: true
+  mode: "postprocess"  # Only run privacy processing after SLAM completes
+
+  # Post-processing detector
+  grounding_sam_config:
+    text_prompts:
+      - "person"
+      - "human face"
+    box_threshold: 0.35
+    text_threshold: 0.3
+    dilation_kernel: 9
+    sam_model: "vit_b"  # Use smaller SAM model by default
+
+  # Excision parameters
+  uncertainty_beta: 100.0
+  excision_threshold: 0.5
+  multi_view_threshold: 1  # Less strict for post-processing only
+  depth_aware: true
+  depth_buffer: 0.5
+
+  # Enable/disable components
+  enable_excision: true
+  enable_filling: false  # No filling by default
+
+  # Evaluation
+  evaluation:
+    compute_reidentification: true
+    compute_ssim_sensitive: true
+    ssim_target: "black"

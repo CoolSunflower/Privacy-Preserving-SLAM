@@ -1,0 +1,88 @@
+inherit_from: ./configs/wildgs_slam.yaml
+scene: city_day_mid
+stride: 1
+fast_mode: False
+max_frames: -1
+
+data:
+  input_folder: ./datasets/VIODE/city_day_mid
+  output: ./output/vio_city_day_fe_imu_depth_corr_loss
+  has_depth: False
+
+eval_manual: True
+dataset: 'viode'
+
+tracking:
+  buffer: 1500
+
+# IMU and camera configuration tuned for the simulated VIODE dataset
+imu:
+  enabled: True
+  use_in_frontend: True
+  use_in_ba: False
+  topic: "/imu0"
+  rate: 100.0
+  warmup: 20
+  use_orientation: True   # Use ground-truth orientation provided by dataset
+  gravity: [0.0, 0.0, -9.81007]
+
+  uncertainty_power_factor: 0.5  
+
+  # Measurement noise (from YAML snippet user provided - adapt if needed)
+  sigma_acc: 0.2
+  sigma_gyr: 0.05
+
+  # Random walk noise
+  sigma_acc_walk: 0.02
+  sigma_gyr_walk: 4.0e-5
+
+  # Body (IMU) to Camera transformation (from user's cam0_extrinsics.yaml)
+  # This is the transform from IMU/body frame to camera frame
+  body_T_cam0: [
+    0.0, 0.0, 1.0, 0.0,
+    1.0, 0.0, 0.0, 0.0,
+    0.0, 1.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 1.0
+  ]
+
+  # Initial biases (simulated dataset has near-zero biases by default)
+  bias_acc: [0.0, 0.0, 0.0]
+  bias_gyr: [0.0, 0.0, 0.0]
+
+  prior_weight_T: 0.5
+  prior_weight_R: 0.5
+
+  max_imu_samples: 30000
+  max_keyframes: 1500
+
+cam:
+  H: 480
+  W: 752
+  H_out: 360
+  W_out: 480
+  fx: 376.0
+  fy: 376.0
+  cx: 376.0
+  cy: 240.0
+  H_edge: 0
+  W_edge: 0
+  png_depth_scale: 5000
+
+mapping:
+  Training:
+    alpha: 0.8 # Increase this value to make rendering loss weighs more on rgb rather than depth
+    use_pearson_depth: True # Enable Pearson correlation loss for monocular depth
+    pearson_weight: 0.01 # Weight for Pearson depth loss (scale-invariant)
+  uncertainty_params:
+    uncer_depth_mult: 0.1
+
+    # Correlation penalty loss - discourage high uncertainty for far-away objects
+    correlation_penalty:
+      enabled: True                 # Enable/disable correlation penalty loss
+      correlation_threshold: 0.3    # Only apply penalty if Pearson correlation > this value
+      depth_percentile: 75.0        # Percentile of depth to consider as "far" (top 25%)
+      min_depth_threshold: 3.0      # Minimum absolute depth (meters) to be considered "far"
+      penalty_strength: 1.0         # Multiplier for the penalty loss
+      opacity_threshold: 0.5        # Only consider pixels with opacity > this value
+
+  online_plotting: True
