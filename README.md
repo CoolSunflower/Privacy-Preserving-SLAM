@@ -124,7 +124,7 @@ This ensures **privacy-safe 3D maps without degrading SLAM performance**.
 
 1. Clone the repo with the `--recursive` flag (uses [anaconda](https://www.anaconda.com/)):
 ```bash
-git clone --recursive 
+git clone --recursive https://github.com/CoolSunflower/Privacy-Preserving-SLAM.git
 cd Privacy-Preserving-SLAM
 ```
 2. Create a new conda environment:
