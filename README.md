@@ -1,7 +1,8 @@
 <h1 align="center">Privacy-Preserving Multimodal Gaussian SLAM with Cycle-Aware Uncertainty Refinement and Zero-Shot Mamba Re-Ranking</h1>
 
 <p align="center">
-<strong>Adarsh Gupta (B. Tech. CSE IIT Guwahati) - BTP Phase 2</strong>
+  <strong> Adarsh Gupta (B. Tech. CSE IIT Guwahati) - BTP Phase 2 </strong><br>
+  <strong> Full Thesis: <a href="https://doi.org/10.13140/RG.2.2.17488.47368">https://doi.org/10.13140/RG.2.2.17488.47368</a></strong>
 </p>
 
 <p align="center">
